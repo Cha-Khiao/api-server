@@ -39,7 +39,7 @@ const options = {
     },
     servers: [
       {
-        url: `https://api-server-msa6.onrender.com`,
+        url: `https://api-server-seven-zeta.vercel.app`,
         description: 'Development Server'
       },
     ],
@@ -62,6 +62,14 @@ const options = {
 const specs = swaggerJsdoc(options);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
+// ✨✨✨ ส่วนที่แก้ไข ✨✨✨
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
+  customCssUrl: "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css",
+  customJs: [
+    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js"
+  ],
+}));
 
 // API Routes
 app.get('/', (req, res) => {
@@ -74,5 +82,5 @@ app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
-  console.log(`📚 API Documentation available at https://api-server-msa6.onrender.com/api-docs`);
+  console.log(`📚 API Documentation available at https://api-server-seven-zeta.vercel.app/api-docs`);
 });
