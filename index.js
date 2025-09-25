@@ -92,30 +92,3 @@ app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
 });
 
-// ปรับแต่งการคัดลอกลิงก์
-function copyToClipboard(text) {
-  navigator.clipboard.writeText(text).then(() => {
-    alert('ลิงก์ถูกคัดลอกแล้ว: ' + text);
-  });
-}
-
-// เพิ่มปุ่มคัดลอกใน UI ของ Swagger
-window.onload = function () {
-  const serverElements = document.querySelectorAll('.server');
-  serverElements.forEach((element) => {
-    const url = element.querySelector('.url').innerText;
-    const copyButton = document.createElement('button');
-    copyButton.innerText = 'คัดลอก URL';
-    copyButton.onclick = function () {
-      copyToClipboard(url);
-    };
-    element.appendChild(copyButton);
-  });
-};
-
-// เพิ่มลิงก์ดาวน์โหลดไฟล์ Swagger
-const downloadLink = document.createElement('a');
-downloadLink.innerText = 'ดาวน์โหลด Swagger Spec';
-downloadLink.href = '/swagger-spec.json'; // ลิงก์ไปที่ไฟล์ .json ของ Swagger
-downloadLink.download = 'swagger-spec.json';
-document.body.appendChild(downloadLink);
