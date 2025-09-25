@@ -16,10 +16,9 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 
-// Serve static files (e.g., favicon and swagger-custom.js) from the 'public' directory
-app.use(express.static('public')); // ให้บริการไฟล์ในโฟลเดอร์ 'public'
+// Serve static files (e.g., favicon) from the 'favicon' directory
+app.use('/favicon', express.static(path.join(__dirname, 'favicon'))); // ให้บริการไฟล์จากโฟลเดอร์ 'favicon'
 
-// เชื่อมต่อกับ MongoDB
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
@@ -45,12 +44,10 @@ const options = {
       {
         url: `https://api-server-seven-zeta.vercel.app/`,
         description: 'Production Server',
-        urlLink: 'https://api-server-seven-zeta.vercel.app/',
       },
       {
         url: `http://localhost:${PORT}`,
         description: 'Development Server',
-        urlLink: `http://localhost:${PORT}`,
       }
     ],
     components: {
@@ -76,10 +73,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
   customCssUrl: "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css",
   customJs: [
     "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js",
-    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js",
-    "/swagger-custom.js",  // โหลดไฟล์จาก public directory
+    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js"
   ],
-  customfavIcon: "public/favicon/Node.png",  // ไอคอนจาก public directory
+  customfavIcon: "/favicon/Node.png", // ไฟล์ Node.png ที่อยู่ในโฟลเดอร์ 'favicon'
 }));
 
 // API Routes
@@ -90,7 +86,6 @@ app.get('/', (req, res) => {
 app.use('/api/users', userRoutes);
 app.use('/api/hairstyles', hairstyleRoutes);
 
-// ฟังเซิร์ฟเวอร์
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
 });
