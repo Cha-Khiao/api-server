@@ -79,7 +79,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
     "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js",
     "/swagger-custom.js",  // โหลดไฟล์จาก public directory
   ],
-  customfavIcon: "/favicon/Node.png",  // ไอคอนจาก public directory
+  customfavIcon: "public/favicon/Node.png",  // ไอคอนจาก public directory
 }));
 
 // API Routes
