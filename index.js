@@ -42,7 +42,7 @@ const options = {
     },
     servers: [
       {
-        url: `https://api-server-seven-zeta.vercel.app/`,
+        url: `https://api-server-seven-pi.vercel.app/`,
         description: 'Production Server',
       },
       {
