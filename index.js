@@ -12,9 +12,13 @@ const swaggerUi = require('swagger-ui-express');
 dotenv.config();
 
 const app = express();
-app.use(express.json()); // Middleware to parse JSON bodies
+app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
+
+// Serve static files from the 'uploads' directory
+app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+
 
 const connectDB = async () => {
   try {
@@ -39,9 +43,13 @@ const options = {
     },
     servers: [
       {
-        url: `https://api-server-seven-zeta.vercel.app`,
-        description: 'Development Server'
+        url: `https://api-server-seven-zeta.vercel.app/`, // ✨ อัปเดต URL เป็นของ Vercel
+        description: 'Production Server'
       },
+      {
+        url: `http://localhost:${PORT}`,
+        description: 'Development Server'
+      }
     ],
     components: {
       securitySchemes: {
@@ -56,11 +64,10 @@ const options = {
       bearerAuth: []
     }]
   },
-  apis: ['./routes/*.js'], // Path to the API docs
+  apis: ['./routes/*.js'],
 };
 
 const specs = swaggerJsdoc(options);
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 
 // ✨✨✨ ส่วนที่แก้ไข ✨✨✨
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
@@ -73,14 +80,12 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
 
 // API Routes
 app.get('/', (req, res) => {
-  res.redirect('/api-docs');
+  res.send('🎉 Cut Match API is running! Go to /api-docs for documentation.');
 });
 
 app.use('/api/users', userRoutes);
 app.use('/api/hairstyles', hairstyleRoutes);
-app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
-  console.log(`📚 API Documentation available at https://api-server-seven-zeta.vercel.app/api-docs`);
 });
