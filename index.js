@@ -39,7 +39,7 @@ const options = {
     },
     servers: [
       {
-        url: `http://localhost:${PORT}`,
+        url: `https://cut-match-api.onrender.com`,
         description: 'Development Server'
       },
     ],
@@ -74,5 +74,5 @@ app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
-  console.log(`📚 API Documentation available at http://localhost:${PORT}/api-docs`);
+  console.log(`📚 API Documentation available at https://cut-match-api.onrender.com/api-docs`);
 });
