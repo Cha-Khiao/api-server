@@ -82,7 +82,7 @@ const updateUserProfile = async (req, res) => {
         if (req.file) {
           // req.file.path จะเป็น 'uploads/profile-1668... .jpg'
           // เราต้องใส่ slash ข้างหน้าเพื่อให้เป็น URL ที่ถูกต้อง
-          user.profileImageUrl = `/${req.file.path}`;
+          user.profileImageUrl = req.file.path;
         }
 
         if (req.body.password) {
