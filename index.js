@@ -42,7 +42,7 @@ const options = {
     },
     servers: [
       {
-        url: `https://api-server-seven-pi.vercel.app/`,
+        url: `https://api-server-msa6.onrender.com/`,
         description: 'Production Server',
       },
       {
