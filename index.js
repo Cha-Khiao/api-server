@@ -89,4 +89,5 @@ app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
+  console.log(`📚 API Documentation available at https://api-server-seven-pi.vercel.app/api-docs`);
 });
