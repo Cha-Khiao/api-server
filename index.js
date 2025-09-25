@@ -80,7 +80,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
 
 // API Routes
 app.get('/', (req, res) => {
-  res.send('🎉 Cut Match API is running! Go to /api-docs for documentation.');
+  res.redirect('/api-docs');
 });
 
 app.use('/api/users', userRoutes);
