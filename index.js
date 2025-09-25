@@ -42,14 +42,14 @@ const options = {
     },
     servers: [
       {
-        url: `https://api-server-seven-zeta.vercel.app/`, // ✨ อัปเดต URL เป็นของ Vercel
+        url: `https://api-server-seven-zeta.vercel.app/`,
         description: 'Production Server',
-        urlLink: 'https://api-server-seven-zeta.vercel.app/', // สำหรับคัดลอก
+        urlLink: 'https://api-server-seven-zeta.vercel.app/',
       },
       {
         url: `http://localhost:${PORT}`,
         description: 'Development Server',
-        urlLink: `http://localhost:${PORT}`, // สำหรับคัดลอก
+        urlLink: `http://localhost:${PORT}`,
       }
     ],
     components: {
@@ -77,7 +77,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
     "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js",
     "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js"
   ],
-  customfavIcon: "https://example.com/favicon.ico", // คุณสามารถเปลี่ยน favicon ได้ที่นี่
+  customfavIcon: "https://example.com/favicon.ico",
 }));
 
 // API Routes
@@ -91,4 +91,3 @@ app.use('/api/hairstyles', hairstyleRoutes);
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
 });
-
