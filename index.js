@@ -16,9 +16,10 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 
-// Serve static files from the 'uploads' directory
-app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+// Serve static files (e.g., favicon and swagger-custom.js) from the 'public' directory
+app.use(express.static('public')); // ให้บริการไฟล์ในโฟลเดอร์ 'public'
 
+// เชื่อมต่อกับ MongoDB
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
@@ -76,61 +77,9 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
   customJs: [
     "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js",
     "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js",
-    // เพิ่ม JavaScript ของคุณที่นี่
-    `
-    window.onload = function () {
-      const serverSection = document.createElement('div');
-      serverSection.innerHTML = "<h2>Servers</h2>";
-
-      const servers = [
-        {
-          url: "https://api-server-seven-zeta.vercel.app/",
-          description: "Production Server"
-        },
-        {
-          url: \`http://localhost:${window.location.port}\`,
-          description: "Development Server"
-        }
-      ];
-
-      // สร้าง HTML สำหรับแสดงเซิร์ฟเวอร์
-      servers.forEach(server => {
-        const serverDiv = document.createElement('div');
-        const description = document.createElement('p');
-        description.textContent = \`\${server.description}: \${server.url}\`;
-        
-        // ปุ่มคัดลอก URL
-        const copyButton = document.createElement('button');
-        copyButton.textContent = 'คัดลอกลิงก์';
-        copyButton.onclick = function () {
-          navigator.clipboard.writeText(server.url)
-            .then(() => {
-              alert('ลิงก์ถูกคัดลอกแล้ว');
-            })
-            .catch((error) => {
-              alert('ไม่สามารถคัดลอกลิงก์ได้');
-            });
-        };
-
-        serverDiv.appendChild(description);
-        serverDiv.appendChild(copyButton);
-        serverSection.appendChild(serverDiv);
-      });
-
-      // แสดงส่วนนี้บนหน้า UI ของ Swagger
-      const apiDocs = document.querySelector('#swagger-ui');
-      apiDocs.prepend(serverSection);
-
-      // เพิ่มลิงก์ดาวน์โหลดไฟล์ Swagger Spec
-      const downloadLink = document.createElement('a');
-      downloadLink.innerText = 'ดาวน์โหลด Swagger Spec';
-      downloadLink.href = '/swagger-spec.json'; // ลิงก์ดาวน์โหลดไฟล์ Swagger JSON
-      downloadLink.download = 'swagger-spec.json';
-      apiDocs.appendChild(downloadLink);
-    };
-    `
+    "/swagger-custom.js",  // โหลดไฟล์จาก public directory
   ],
-  customfavIcon: "/favicon/Node.png", // ไฟล์ Node.png ที่อยู่ในโฟลเดอร์ 'favicon'
+  customfavIcon: "/favicon/Node.png",  // ไอคอนจาก public directory
 }));
 
 // API Routes
@@ -141,6 +90,7 @@ app.get('/', (req, res) => {
 app.use('/api/users', userRoutes);
 app.use('/api/hairstyles', hairstyleRoutes);
 
+// ฟังเซิร์ฟเวอร์
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
 });
