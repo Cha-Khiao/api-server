@@ -16,8 +16,8 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 
-// Serve static files from the 'uploads' directory
-app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+// Serve static files (e.g., favicon) from the 'favicon' directory
+app.use('/favicon', express.static(path.join(__dirname, 'favicon'))); // ให้บริการไฟล์จากโฟลเดอร์ 'favicon'
 
 const connectDB = async () => {
   try {
@@ -32,81 +32,53 @@ const connectDB = async () => {
 connectDB();
 
 // --- Swagger/OpenAPI Setup ---
-const swaggerDefinition = {
-  openapi: '3.0.0',
-  info: {
-    title: 'Cut Match API',
-    version: '1.0.0',
-    description: 'API Documentation for Cut Match - Hairstyle Recommendation App',
-  },
-  servers: [
-    {
-      url: `https://api-server-seven-zeta.vercel.app/`,
-      description: 'Production Server'
-    },
-    {
-      url: `http://localhost:${PORT}`,
-      description: 'Development Server'
-    }
-  ],
-  components: {
-    securitySchemes: {
-      bearerAuth: {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-      }
-    }
-  },
-  security: [{
-    bearerAuth: []
-  }]
-};
-
 const options = {
-  definition: swaggerDefinition,
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Cut Match API',
+      version: '1.0.0',
+      description: 'API Documentation for Cut Match - Hairstyle Recommendation App',
+    },
+    servers: [
+      {
+        url: `https://api-server-seven-zeta.vercel.app/`,
+        description: 'Production Server',
+        urlLink: 'https://api-server-seven-zeta.vercel.app/',
+      },
+      {
+        url: `http://localhost:${PORT}`,
+        description: 'Development Server',
+        urlLink: `http://localhost:${PORT}`,
+      }
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        }
+      }
+    },
+    security: [{
+      bearerAuth: []
+    }]
+  },
   apis: ['./routes/*.js'],
 };
 
 const specs = swaggerJsdoc(options);
 
-// --- Custom JS สำหรับปุ่ม Copy ---
-const fs = require('fs');
-const customJsPath = path.join(__dirname, 'swagger-custom.js');
-fs.writeFileSync(customJsPath, `
-window.onload = function() {
-  const observer = new MutationObserver(() => {
-    const target = document.querySelectorAll('.servers > label > span');
-
-    target.forEach(el => {
-      if (!el.parentNode.querySelector('.copy-btn')) {
-        const url = el.innerText;
-        const button = document.createElement('button');
-        button.innerText = '📋 Copy';
-        button.className = 'copy-btn';
-        button.style.marginLeft = '10px';
-        button.style.cursor = 'pointer';
-        button.onclick = () => {
-          navigator.clipboard.writeText(url).then(() => {
-            alert(\`Copied: \${url}\`);
-          });
-        };
-        el.parentNode.appendChild(button);
-      }
-    });
-  });
-
-  observer.observe(document.body, { childList: true, subtree: true });
-};
-`);
-
+// ✨✨✨ เพิ่มการตั้งค่าไอคอน และส่วนของ Swagger UI ✨✨✨
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
   customCssUrl: "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui.min.css",
-  customJs: ["/swagger-custom.js"],
+  customJs: [
+    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js",
+    "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js"
+  ],
+  customfavIcon: "/favicon/Node.png", // ไฟล์ Node.png ที่อยู่ในโฟลเดอร์ 'favicon'
 }));
-
-// ให้ express เสิร์ฟไฟล์ custom js
-app.use('/swagger-custom.js', express.static(customJsPath));
 
 // API Routes
 app.get('/', (req, res) => {
