@@ -81,8 +81,50 @@ app.get('/', (req, res) => {
 app.use('/api/users', userRoutes);
 app.use('/api/hairstyles', hairstyleRoutes);
 
-// REMOVED: บรรทัดนี้ถูกลบออกเพราะเราใช้ Cloudinary ในการจัดการไฟล์ทั้งหมด
-// app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
+// วางโค้ดนี้ใน index.js ก่อน app.listen(...)
+app.get('/debug-db', async (req, res) => {
+  console.log('--- Received request for /debug-db ---');
+  const uri = process.env.MONGODB_URI;
+
+  if (!uri) {
+    return res.status(500).json({
+      status: 'error',
+      message: 'MONGODB_URI is not defined in environment variables.'
+    });
+  }
+
+  console.log('Attempting to connect to MongoDB...');
+  console.log('URI used (password masked):', uri.replace(/:([^:]+)@/, ':*****@'));
+
+  try {
+    const testConnection = await mongoose.createConnection(uri, {
+      serverSelectionTimeoutMS: 10000, // รอสูงสุด 10 วินาที
+    }).asPromise();
+
+    if (testConnection.readyState === 1) {
+      console.log('✅ MongoDB connection test successful!');
+      await testConnection.close();
+      res.status(200).json({
+        status: 'success',
+        message: 'MongoDB connection test successful!',
+      });
+    } else {
+        throw new Error('Connection readyState is not 1');
+    }
+
+  } catch (error) {
+    console.error('❌ MongoDB connection test FAILED!');
+    console.error('Error Name:', error.name);
+    console.error('Error Message:', error.message);
+
+    res.status(500).json({
+      status: 'error',
+      message: 'MongoDB connection test FAILED!',
+      errorName: error.name,
+      errorMessage: error.message,
+    });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
