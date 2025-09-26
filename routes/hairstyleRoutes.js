@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { check, validationResult } = require('express-validator');
 const {
   createHairstyle,
   getHairstyles,
@@ -8,6 +9,15 @@ const {
   deleteHairstyle
 } = require('../controllers/hairstyleController.js');
 const { protect, admin } = require('../middleware/authMiddleware.js');
+
+// Middleware to handle validation results
+const validateRequest = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  next();
+};
 
 /**
  * @swagger
@@ -100,7 +110,18 @@ const { protect, admin } = require('../middleware/authMiddleware.js');
  */
 router.route('/')
   .get(getHairstyles)
-  .post(protect, admin, createHairstyle);
+  .post(
+    protect,
+    admin,
+    [ // Validation rules for creating a hairstyle
+      check('name', 'Name is required').not().isEmpty(),
+      check('description', 'Description is required').not().isEmpty(),
+      check('imageUrls', 'Image URLs must be an array with at least one URL').isArray({ min: 1 }),
+      check('gender', 'Gender is required and must be ชาย, หญิง, or Unisex').isIn(['ชาย', 'หญิง', 'Unisex']),
+    ],
+    validateRequest,
+    createHairstyle
+  );
 
 /**
  * @swagger
@@ -162,7 +183,18 @@ router.route('/')
  */
 router.route('/:id')
   .get(getHairstyleById)
-  .put(protect, admin, updateHairstyle)
+  .put(
+    protect,
+    admin,
+    [ // Optional validation rules for updating
+      check('name').optional().not().isEmpty(),
+      check('description').optional().not().isEmpty(),
+      check('imageUrls').optional().isArray({ min: 1 }),
+      check('gender').optional().isIn(['ชาย', 'หญิง', 'Unisex']),
+    ],
+    validateRequest,
+    updateHairstyle
+  )
   .delete(protect, admin, deleteHairstyle);
 
 module.exports = router;

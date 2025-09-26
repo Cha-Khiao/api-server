@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { check, validationResult } = require('express-validator');
 const {
   registerUser,
   loginUser,
@@ -9,6 +10,15 @@ const {
 } = require('../controllers/userController.js');
 const { protect } = require('../middleware/authMiddleware.js');
 const upload = require('../middleware/uploadMiddleware.js');
+
+// Middleware to handle validation results
+const validateRequest = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  next();
+};
 
 /**
  * @swagger
@@ -81,7 +91,14 @@ const upload = require('../middleware/uploadMiddleware.js');
  *       400:
  *         description: Bad request (e.g., user already exists)
  */
-router.post('/register', registerUser);
+router.post('/register', [
+    check('username', 'Username is required').not().isEmpty(),
+    check('email', 'Please include a valid email').isEmail(),
+    check('password', 'Password must be 6 or more characters').isLength({ min: 6 })
+  ],
+  validateRequest,
+  registerUser
+);
 
 /**
  * @swagger
@@ -113,7 +130,13 @@ router.post('/register', registerUser);
  *       401:
  *         description: Invalid email or password
  */
-router.post('/login', loginUser);
+router.post('/login', [
+    check('email', 'Please include a valid email').isEmail(),
+    check('password', 'Password is required').exists()
+  ],
+  validateRequest,
+  loginUser
+);
 
 /**
  * @swagger
