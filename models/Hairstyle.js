@@ -11,6 +11,16 @@ const hairstyleSchema = new mongoose.Schema({
     required: true,
     enum: ['ชาย', 'หญิง', 'Unisex'], // กำหนดให้ใส่ได้แค่ 3 ค่านี้
   },
+  averageRating: { // คะแนนเฉลี่ย
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  numReviews: { // จำนวนรีวิวทั้งหมด
+    type: Number,
+    required: true,
+    default: 0,
+  },
 }, { timestamps: true });
 
 const Hairstyle = mongoose.model('Hairstyle', hairstyleSchema);

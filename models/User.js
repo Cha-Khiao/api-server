@@ -16,6 +16,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: '', // ค่าเริ่มต้นเป็นสตริงว่าง
   },
+  
+  favorites: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Hairstyle' // สำคัญมาก: เป็นการบอกว่า ID ใน Array นี้อ้างอิงถึงข้อมูลใน Model 'Hairstyle'
+  }]
 }, { timestamps: true });
 
 // เข้ารหัสรหัสผ่านก่อนบันทึก
