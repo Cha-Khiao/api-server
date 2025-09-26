@@ -20,22 +20,17 @@ dotenv.config();
 
 const app = express();
 
-// --- 🚀 เพิ่มบรรทัดนี้เข้ามาครับ! ---
-// บอกให้ Express เชื่อถือ Proxy Header จาก Vercel
-app.set('trust proxy', 1);
-// ------------------------------------
-
 // --- Security Middlewares ---
-app.use(helmet()); 
+app.use(helmet()); // Sets various HTTP headers for security
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, 
-  max: 100, 
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
   standardHeaders: true,
   legacyHeaders: false,
   message: 'Too many requests from this IP, please try again after 15 minutes'
 });
-app.use('/api', limiter); 
+app.use('/api', limiter); // Apply the rate limiting to all API routes
 
 app.use(express.json());
 
@@ -106,8 +101,11 @@ app.get('/', (req, res) => {
 app.use('/api/users', userRoutes);
 app.use('/api/hairstyles', hairstyleRoutes);
 
+
 // --- Centralized Error Handler ---
+// This must be the last middleware
 app.use(errorHandler);
+
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
