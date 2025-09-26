@@ -6,7 +6,10 @@ const {
   loginUser,
   getUserProfile,
   updateUserProfile,
-  deleteUserProfile
+  deleteUserProfile,
+  getFavoriteHairstyles,
+  addFavoriteHairstyle,
+  removeFavoriteHairstyle
 } = require('../controllers/userController.js');
 const { protect } = require('../middleware/authMiddleware.js');
 const upload = require('../middleware/uploadMiddleware.js');
@@ -64,6 +67,28 @@ const validateRequest = (req, res, next) => {
  *           type: string
  *           format: date-time
  *           description: The date the user profile was last updated
+ *     Favorite:
+ *       type: object
+ *       required:
+ *         - userId
+ *         - hairstyleId
+ *       properties:
+ *         userId:
+ *           type: string
+ *           description: The ID of the user who is adding the favorite
+ *           example: 60d2b3f04f1a2d001fbc2e7d
+ *         hairstyleId:
+ *           type: string
+ *           description: The ID of the hairstyle being added to favorites
+ *           example: 60d2b3f04f1a2d001fbc2e7e
+ *         createdAt:
+ *           type: string
+ *           format: date-time
+ *           description: The date when the favorite was added
+ *         updatedAt:
+ *           type: string
+ *           format: date-time
+ *           description: The date when the favorite was last updated
  */
 
 /**
@@ -71,6 +96,8 @@ const validateRequest = (req, res, next) => {
  * tags:
  *   - name: Users
  *     description: User authentication and management
+ *   - name: Favorites
+ *     description: Manage user favorites (hairstyles)
  */
 
 /**
@@ -158,25 +185,19 @@ router.post('/login', [
  *       - bearerAuth: []
  *     requestBody:
  *       content:
- *         multipart/form-data:  # เปลี่ยนจาก application/json เป็น multipart/form-data
+ *         multipart/form-data:
  *           schema:
  *             type: object
  *             properties:
  *               username:
  *                 type: string
- *                 description: New username for the user.
  *               email:
  *                 type: string
- *                 format: email
- *                 description: New email for the user.
  *               password:
  *                 type: string
- *                 format: password
- *                 description: New password for the user.
- *               profileImage:      # เพิ่ม field สำหรับไฟล์
+ *               profileImage:
  *                 type: string
  *                 format: binary
- *                 description: Profile image file to upload (jpg, jpeg, png).
  *     responses:
  *       200:
  *         description: Profile updated successfully
@@ -199,5 +220,69 @@ router.route('/profile')
   .get(protect, getUserProfile)
   .put(protect, upload.single('profileImage'), updateUserProfile)
   .delete(protect, deleteUserProfile);
+
+// --- Favorite Routes ---
+/**
+ * @swagger
+ * /api/users/favorites:
+ *   get:
+ *     summary: Get a list of the user's favorite hairstyles
+ *     tags: [Favorites]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: List of favorite hairstyles for the user
+ *       401:
+ *         description: Unauthorized
+ *   post:
+ *     summary: Add a hairstyle to the user's favorites
+ *     tags: [Favorites]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/Favorite'
+ *     responses:
+ *       201:
+ *         description: Favorite added successfully
+ *       400:
+ *         description: Bad request (e.g., already added to favorites)
+ *       401:
+ *         description: Unauthorized
+ */
+
+/**
+ * @swagger
+ * /api/users/favorites/{id}:
+ *   delete:
+ *     summary: Remove a hairstyle from the user's favorites
+ *     tags: [Favorites]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the favorite hairstyle to be removed
+ *     responses:
+ *       200:
+ *         description: Favorite removed successfully
+ *       404:
+ *         description: Favorite not found
+ *       401:
+ *         description: Unauthorized
+ */
+router.route('/favorites')
+  .get(protect, getFavoriteHairstyles)
+  .post(protect, addFavoriteHairstyle);
+
+router.route('/favorites/:id')
+  .delete(protect, removeFavoriteHairstyle);
 
 module.exports = router;

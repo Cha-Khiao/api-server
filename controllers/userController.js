@@ -84,7 +84,6 @@ const updateUserProfile = asyncHandler(async (req, res) => {
     user.email = req.body.email || user.email;
 
     if (req.file) {
-      // Assuming multer-storage-cloudinary gives the path as the URL
       user.profileImageUrl = req.file.path;
     }
 
@@ -120,10 +119,60 @@ const deleteUserProfile = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Get user's favorite hairstyles
+// @route   GET /api/users/favorites
+const getFavoriteHairstyles = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id).populate('favorites');
+  if (user) {
+    res.json(user.favorites);
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
+// @desc    Add hairstyle to favorites
+// @route   POST /api/users/favorites
+const addFavoriteHairstyle = asyncHandler(async (req, res) => {
+  const { hairstyleId } = req.body;
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    if (!user.favorites.includes(hairstyleId)) {
+      user.favorites.push(hairstyleId);
+      await user.save();
+    }
+    res.status(200).json({ message: 'Added to favorites' });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
+// @desc    Remove hairstyle from favorites
+// @route   DELETE /api/users/favorites/:id
+const removeFavoriteHairstyle = asyncHandler(async (req, res) => {
+  const hairstyleId = req.params.id;
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    user.favorites.pull(hairstyleId);
+    await user.save();
+    res.status(200).json({ message: 'Removed from favorites' });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
+// Export controllers
 module.exports = {
   registerUser,
   loginUser,
   getUserProfile,
   updateUserProfile,
-  deleteUserProfile
+  deleteUserProfile,
+  getFavoriteHairstyles,
+  addFavoriteHairstyle,
+  removeFavoriteHairstyle,
 };
