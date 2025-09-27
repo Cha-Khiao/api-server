@@ -10,7 +10,9 @@ const {
   getFavoriteHairstyles,
   addFavoriteHairstyle,
   removeFavoriteHairstyle,
-  addSavedLook
+  addSavedLook,
+  getSavedLooks,
+  deleteSavedLook
 } = require('../controllers/userController.js');
 const { protect } = require('../middleware/authMiddleware.js');
 const upload = require('../middleware/uploadMiddleware.js');
@@ -290,6 +292,41 @@ router.route('/favorites/:id')
 /**
  * @swagger
  * /api/users/saved-looks:
+ *   get:
+ *     summary: Get a list of saved looks (images)
+ *     tags: [SavedLooks]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: A list of saved looks (images)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   _id:
+ *                     type: string
+ *                     description: The ID of the saved look
+ *                     example: 60d2b3f04f1a2d001fbc2e7d
+ *                   imageUrl:
+ *                     type: string
+ *                     description: The URL of the saved look image
+ *                     example: "https://example.com/image.png"
+ *                   createdAt:
+ *                     type: string
+ *                     format: date-time
+ *                     description: The date the saved look was created
+ *                     example: "2022-05-18T09:30:00Z"
+ *                   updatedAt:
+ *                     type: string
+ *                     format: date-time
+ *                     description: The date the saved look was last updated
+ *                     example: "2022-05-19T14:25:00Z"
+ *       401:
+ *         description: Unauthorized
  *   post:
  *     summary: Add a saved look (image upload)
  *     tags: [SavedLooks]
@@ -315,8 +352,33 @@ router.route('/favorites/:id')
  *         description: Invalid file type
  *       401:
  *         description: Unauthorized
+ *   delete:
+ *     summary: Delete a saved look (image)
+ *     tags: [SavedLooks]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               savedLookId:
+ *                 type: string
+ *                 description: The ID of the saved look to be deleted
+ *                 example: 60d2b3f04f1a2d001fbc2e7d
+ *     responses:
+ *       200:
+ *         description: Saved look deleted successfully
+ *       404:
+ *         description: Saved look not found
+ *       401:
+ *         description: Unauthorized
  */
 router.route('/saved-looks')
-  .post(protect, upload.single('savedLookImage'), addSavedLook);
+    .get(protect, getSavedLooks)
+    .post(protect, upload.single('savedLookImage'), addSavedLook)
+    .delete(protect, deleteSavedLook);
 
 module.exports = router;

@@ -159,24 +159,51 @@ const removeFavoriteHairstyle = asyncHandler(async (req, res) => {
 // @desc    Upload a saved look image and add URL to user profile
 // @route   POST /api/users/saved-looks
 const addSavedLook = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user._id);
-
-  if (user) {
-    if (req.file) { // req.file มาจาก middleware 'upload'
-      user.savedLooks.push(req.file.path); // req.file.path คือ URL จาก Cloudinary
-      await user.save();
-      res.status(201).json({ 
-        message: 'Look saved successfully',
-        savedLooks: user.savedLooks 
-      });
+    const user = await User.findById(req.user._id);
+    if (user) {
+        if (req.file) {
+            user.savedLooks.push(req.file.path); // req.file.path คือ URL จาก Cloudinary
+            await user.save();
+            res.status(201).json({
+                message: 'Look saved successfully',
+                savedLooks: user.savedLooks
+            });
+        } else {
+            res.status(400);
+            throw new Error('No image file provided');
+        }
     } else {
-      res.status(400);
-      throw new Error('No image file provided');
+        res.status(404);
+        throw new Error('User not found');
     }
-  } else {
-    res.status(404);
-    throw new Error('User not found');
-  }
+});
+
+// @desc    Get all saved looks for a user
+// @route   GET /api/users/saved-looks
+const getSavedLooks = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.user._id);
+    if (user) {
+        res.json(user.savedLooks);
+    } else {
+        res.status(404);
+        throw new Error('User not found');
+    }
+});
+
+// @desc    Delete a saved look
+// @route   DELETE /api/users/saved-looks
+const deleteSavedLook = asyncHandler(async (req, res) => {
+    const { imageUrl } = req.body;
+    const user = await User.findById(req.user._id);
+
+    if (user) {
+        user.savedLooks.pull(imageUrl); // .pull คือคำสั่งของ Mongoose เพื่อลบ item ออกจาก array
+        await user.save();
+        res.json({ message: 'Look deleted successfully' });
+    } else {
+        res.status(404);
+        throw new Error('User not found');
+    }
 });
 
 module.exports = {
@@ -189,4 +216,6 @@ module.exports = {
   addFavoriteHairstyle,
   removeFavoriteHairstyle,
   addSavedLook,
+  getSavedLooks,
+  deleteSavedLook
 };
