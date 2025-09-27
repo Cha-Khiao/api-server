@@ -14,10 +14,30 @@ const createHairstyle = asyncHandler(async (req, res) => {
   res.status(201).json(createdHairstyle);
 });
 
-// @desc    Get all hairstyles
+// @desc    Get all hairstyles OR filter by search/tags/gender etc.
 // @route   GET /api/hairstyles
 const getHairstyles = asyncHandler(async (req, res) => {
-  const hairstyles = await Hairstyle.find({});
+  // รับค่า query parameters จาก URL
+  const { tags, suitableFaceShapes, gender, search } = req.query;
+  let filter = {};
+
+  // สร้าง object สำหรับ query ใน MongoDB
+  if (tags) {
+    filter.tags = { $in: tags.split(',') };
+  }
+  if (suitableFaceShapes) {
+    filter.suitableFaceShapes = { $in: suitableFaceShapes.split(',') };
+  }
+  if (gender) {
+    filter.gender = gender;
+  }
+  if (search) {
+    // ใช้ Regular Expression สำหรับการค้นหาแบบ case-insensitive (ไม่สนตัวพิมพ์เล็ก/ใหญ่)
+    filter.name = { $regex: search, $options: 'i' };
+  }
+
+  // ส่ง filter object เข้าไปใน find()
+  const hairstyles = await Hairstyle.find(filter);
   res.json(hairstyles);
 });
 
@@ -56,7 +76,6 @@ const updateHairstyle = asyncHandler(async (req, res) => {
   }
 });
 
-
 // @desc    Delete a hairstyle
 // @route   DELETE /api/hairstyles/:id
 const deleteHairstyle = asyncHandler(async (req, res) => {
@@ -70,7 +89,6 @@ const deleteHairstyle = asyncHandler(async (req, res) => {
     throw new Error('ไม่พบทรงผมนี้');
   }
 });
-
 
 module.exports = {
   createHairstyle,
