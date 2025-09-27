@@ -9,7 +9,8 @@ const {
   deleteUserProfile,
   getFavoriteHairstyles,
   addFavoriteHairstyle,
-  removeFavoriteHairstyle
+  removeFavoriteHairstyle,
+  addSavedLook
 } = require('../controllers/userController.js');
 const { protect } = require('../middleware/authMiddleware.js');
 const upload = require('../middleware/uploadMiddleware.js');
@@ -98,6 +99,8 @@ const validateRequest = (req, res, next) => {
  *     description: User authentication and management
  *   - name: Favorites
  *     description: Manage user favorites (hairstyles)
+ *   - name: SavedLooks
+ *     description: Manage saved looks (uploaded images)
  */
 
 /**
@@ -221,7 +224,6 @@ router.route('/profile')
   .put(protect, upload.single('profileImage'), updateUserProfile)
   .delete(protect, deleteUserProfile);
 
-// --- Favorite Routes ---
 /**
  * @swagger
  * /api/users/favorites:
@@ -284,5 +286,37 @@ router.route('/favorites')
 
 router.route('/favorites/:id')
   .delete(protect, removeFavoriteHairstyle);
+
+/**
+ * @swagger
+ * /api/users/saved-looks:
+ *   post:
+ *     summary: Add a saved look (image upload)
+ *     tags: [SavedLooks]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               savedLookImage:
+ *                 type: string
+ *                 format: binary
+ *                 description: The saved look image uploaded by the user
+ *             required:
+ *               - savedLookImage
+ *     responses:
+ *       201:
+ *         description: Saved look added successfully
+ *       400:
+ *         description: Invalid file type
+ *       401:
+ *         description: Unauthorized
+ */
+router.route('/saved-looks')
+  .post(protect, upload.single('savedLookImage'), addSavedLook);
 
 module.exports = router;

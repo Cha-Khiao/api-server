@@ -11,22 +11,23 @@ const userSchema = new mongoose.Schema({
     enum: ['user', 'admin'],
     default: 'user',
   },
-  // ✨ เพิ่มฟิลด์นี้เข้ามา ✨
   profileImageUrl: {
     type: String,
-    default: '', // ค่าเริ่มต้นเป็นสตริงว่าง
+    default: '',
   },
-  
   favorites: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Hairstyle' // สำคัญมาก: เป็นการบอกว่า ID ใน Array นี้อ้างอิงถึงข้อมูลใน Model 'Hairstyle'
-  }]
+    ref: 'Hairstyle'
+  }], // <-- ✨ เพิ่ม comma ที่นี่
+
+  savedLooks: [{ type: String }] // <-- ✨ เพิ่ม comma ที่นี่ (ถ้ามี field ต่อไป)
+  
 }, { timestamps: true });
 
 // เข้ารหัสรหัสผ่านก่อนบันทึก
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
-    next();
+    return next();
   }
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);

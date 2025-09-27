@@ -156,6 +156,28 @@ const removeFavoriteHairstyle = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Upload a saved look image and add URL to user profile
+// @route   POST /api/users/saved-looks
+const addSavedLook = asyncHandler(async (req, res) => {
+  const user = await User.findById(req.user._id);
+
+  if (user) {
+    if (req.file) { // req.file มาจาก middleware 'upload'
+      user.savedLooks.push(req.file.path); // req.file.path คือ URL จาก Cloudinary
+      await user.save();
+      res.status(201).json({ 
+        message: 'Look saved successfully',
+        savedLooks: user.savedLooks 
+      });
+    } else {
+      res.status(400);
+      throw new Error('No image file provided');
+    }
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
 
 module.exports = {
   registerUser,
@@ -166,4 +188,5 @@ module.exports = {
   getFavoriteHairstyles,
   addFavoriteHairstyle,
   removeFavoriteHairstyle,
+  addSavedLook,
 };
