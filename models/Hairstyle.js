@@ -5,6 +5,7 @@ const hairstyleSchema = new mongoose.Schema(
     name: { type: String, required: true },
     description: { type: String, required: true },
     imageUrls: [{ type: String, required: true }],
+    overlayImageUrl: { type: String, default: '' },
     tags: [{ type: String }],
     suitableFaceShapes: [{ type: String }],
     gender: {

@@ -4,10 +4,10 @@ const asyncHandler = require('express-async-handler');
 // @desc    Create a new hairstyle
 // @route   POST /api/hairstyles
 const createHairstyle = asyncHandler(async (req, res) => {
-  const { name, description, imageUrls, tags, suitableFaceShapes, gender } = req.body;
+  const { name, description, imageUrls, overlayImageUrl, tags, suitableFaceShapes, gender } = req.body;
   
   const hairstyle = new Hairstyle({
-    name, description, imageUrls, tags, suitableFaceShapes, gender
+    name, description, imageUrls, overlayImageUrl, tags, suitableFaceShapes, gender
   });
 
   const createdHairstyle = await hairstyle.save();
@@ -64,6 +64,7 @@ const updateHairstyle = asyncHandler(async (req, res) => {
     hairstyle.name = name || hairstyle.name;
     hairstyle.description = description || hairstyle.description;
     hairstyle.imageUrls = imageUrls || hairstyle.imageUrls;
+    hairstyle.overlayImageUrl = req.body.overlayImageUrl || hairstyle.overlayImageUrl;
     hairstyle.tags = tags || hairstyle.tags;
     hairstyle.suitableFaceShapes = suitableFaceShapes || hairstyle.suitableFaceShapes;
     hairstyle.gender = gender || hairstyle.gender;
