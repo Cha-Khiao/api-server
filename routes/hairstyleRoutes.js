@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const reviewRouter = require('./reviewRoutes.js');
 const { check, validationResult } = require('express-validator');
 const {
   createHairstyle,
@@ -18,6 +19,8 @@ const validateRequest = (req, res, next) => {
   }
   next();
 };
+
+router.use('/:id/reviews', reviewRouter);
 
 /**
  * @swagger
@@ -196,5 +199,71 @@ router.route('/:id')
     updateHairstyle
   )
   .delete(protect, admin, deleteHairstyle);
+
+// --- SWAGGER DOCUMENTATION (Reviews) ---
+/**
+ * @swagger
+ * tags:
+ * - name: Reviews
+ * description: API for managing hairstyle reviews
+ */
+/**
+ * @swagger
+ * /api/hairstyles/{id}/reviews:
+ * get:
+ * summary: Get all reviews for a specific hairstyle
+ * tags: [Reviews]
+ * parameters:
+ * - in: path
+ * name: id
+ * required: true
+ * schema:
+ * type: string
+ * description: The ID of the hairstyle to get reviews for.
+ * responses:
+ * 200:
+ * description: A list of reviews for the hairstyle.
+ * 404:
+ * description: Hairstyle not found.
+ * post:
+ * summary: Create a new review for a hairstyle
+ * tags: [Reviews]
+ * security:
+ * - bearerAuth: []
+ * parameters:
+ * - in: path
+ * name: id
+ * required: true
+ * schema:
+ * type: string
+ * description: The ID of the hairstyle to review.
+ * requestBody:
+ * required: true
+ * content:
+ * application/json:
+ * schema:
+ * type: object
+ * required:
+ * - rating
+ * - comment
+ * properties:
+ * rating:
+ * type: number
+ * description: The rating from 1 to 5.
+ * example: 5
+ * comment:
+ * type: string
+ * description: The user's comment.
+ * example: "Best haircut ever!"
+ * responses:
+ * 201:
+ * description: Review added successfully.
+ * 400:
+ * description: Bad request (e.g., already reviewed).
+ * 401:
+ * description: Unauthorized (user not logged in).
+ * 404:
+ * description: Hairstyle not found.
+ */
 
 module.exports = router;
