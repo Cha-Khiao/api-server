@@ -71,8 +71,10 @@ const updateComment = asyncHandler(async (req, res) => {
         }
         comment.text = text || comment.text;
         await comment.save();
-        // --- ✨ ส่วนที่แก้ไขให้ถูกต้อง ✨ ---
+
+        // --- ✨ บรรทัดสำคัญอยู่ตรงนี้ ✨ ---
         const updatedComment = await Comment.findById(comment._id).populate('author', 'username profileImageUrl');
+
         res.json(updatedComment);
     } else {
         res.status(404);
