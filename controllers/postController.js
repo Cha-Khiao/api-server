@@ -97,11 +97,37 @@ const deletePost = asyncHandler(async (req, res) => {
   }
 });
 
+// --- ✨ เพิ่มฟังก์ชันนี้เข้ามา ✨ ---
+// @desc    Update a post
+// @route   PUT /api/posts/:id
+const updatePost = asyncHandler(async (req, res) => {
+  const { text, linkedHairstyle } = req.body;
+  const post = await Post.findById(req.params.id);
+
+  if (post) {
+    // ตรวจสอบว่าเป็นเจ้าของโพสต์หรือไม่
+    if (!post.author.equals(req.user._id)) {
+      res.status(401);
+      throw new Error('User not authorized to update this post');
+    }
+
+    post.text = text || post.text;
+    post.linkedHairstyle = linkedHairstyle || post.linkedHairstyle;
+    // หมายเหตุ: การแก้ไขรูปภาพในโพสต์มักจะเป็น Logic ที่ซับซ้อนกว่านี้ ในที่นี้เราจะอนุญาตให้แก้ไขเฉพาะข้อความและทรงผมที่แนบไปก่อน
+
+    const updatedPost = await post.save();
+    res.json(updatedPost);
+  } else {
+    res.status(404);
+    throw new Error('Post not found');
+  }
+});
 
 module.exports = {
   createPost,
   getFeed,
   getUserPosts,
+  updatePost,
   likePost,
   deletePost,
 };

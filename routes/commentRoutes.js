@@ -4,6 +4,8 @@ const {
   createComment,
   getComments,
   replyToComment,
+  updateComment,
+  deleteComment,
 } = require('../controllers/commentController.js');
 const { protect } = require('../middleware/authMiddleware.js');
 
@@ -43,7 +45,7 @@ const { protect } = require('../middleware/authMiddleware.js');
  * @swagger
  * tags:
  *   - name: Comments
- *     description: Comment management (create, get, reply)
+ *     description: Comment management (create, get, reply, update, delete)
  */
 
 /**
@@ -150,11 +152,89 @@ const { protect } = require('../middleware/authMiddleware.js');
  *         description: Comment or Post not found
  */
 
+/**
+ * @swagger
+ * /api/posts/{postId}/comments/{commentId}:
+ *   put:
+ *     summary: Update a specific comment
+ *     tags: [Comments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the post the comment belongs to
+ *       - in: path
+ *         name: commentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the comment to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 description: The updated content of the comment
+ *                 example: "I updated my comment"
+ *     responses:
+ *       200:
+ *         description: Comment updated successfully
+ *       400:
+ *         description: Bad request (e.g., invalid data)
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Comment or Post not found
+ */
+
+/**
+ * @swagger
+ * /api/posts/{postId}/comments/{commentId}:
+ *   delete:
+ *     summary: Delete a specific comment
+ *     tags: [Comments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: postId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the post the comment belongs to
+ *       - in: path
+ *         name: commentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the comment to delete
+ *     responses:
+ *       200:
+ *         description: Comment deleted successfully
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Comment or Post not found
+ */
+
 router.route('/')
   .post(protect, createComment)
   .get(protect, getComments);
 
 router.route('/:id/reply')
   .post(protect, replyToComment);
+
+// --- ✨ เพิ่ม Route ใหม่สำหรับ แก้ไข/ลบ คอมเมนต์ ✨ ---
+router.route('/:commentId')
+  .put(protect, updateComment)
+  .delete(protect, deleteComment);
 
 module.exports = router;

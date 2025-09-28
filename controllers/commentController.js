@@ -77,8 +77,59 @@ const replyToComment = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Update a comment
+// @route   PUT /api/comments/:commentId
+const updateComment = asyncHandler(async (req, res) => {
+    const { text } = req.body;
+    const comment = await Comment.findById(req.params.commentId);
+
+    if (comment) {
+        // ตรวจสอบว่าเป็นเจ้าของคอมเมนต์หรือไม่
+        if (!comment.author.equals(req.user._id)) {
+            res.status(401);
+            throw new Error('User not authorized');
+        }
+        comment.text = text || comment.text;
+        const updatedComment = await comment.save();
+        res.json(updatedComment);
+    } else {
+        res.status(404);
+        throw new Error('Comment not found');
+    }
+});
+
+// @desc    Delete a comment
+// @route   DELETE /api/comments/:commentId
+const deleteComment = asyncHandler(async (req, res) => {
+    const comment = await Comment.findById(req.params.commentId);
+
+    if (comment) {
+        // ตรวจสอบว่าเป็นเจ้าของคอมเมนต์ หรือเจ้าของโพสต์ หรือแอดมิน
+        const post = await Post.findById(comment.post);
+        if (!comment.author.equals(req.user._id) && !post.author.equals(req.user._id) && req.user.role !== 'admin') {
+            res.status(401);
+            throw new Error('User not authorized');
+        }
+
+        // ถ้าคอมเมนต์นี้เป็น reply, ให้ลบ ID ของมันออกจาก parent comment ด้วย
+        if (comment.parentComment) {
+            await Comment.findByIdAndUpdate(comment.parentComment, {
+                $pull: { replies: comment._id }
+            });
+        }
+
+        await comment.deleteOne();
+        res.json({ message: 'Comment removed' });
+    } else {
+        res.status(404);
+        throw new Error('Comment not found');
+    }
+});
+
 module.exports = {
   createComment,
   getComments,
   replyToComment,
+  updateComment,
+  deleteComment,
 };

@@ -6,6 +6,7 @@ const {
   createPost,
   getFeed,
   getUserPosts,
+  updatePost,
   likePost,
   deletePost,
 } = require('../controllers/postController.js');
@@ -184,6 +185,48 @@ router.use('/:postId/comments', commentRouter);
 /**
  * @swagger
  * /api/posts/{id}:
+ *   put:
+ *     summary: Update a specific post
+ *     tags: [Posts]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the post to be updated
+ *         example: 60d2b3f04f1a2d001fbc2e7d
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               content:
+ *                 type: string
+ *                 description: The updated content of the post
+ *                 example: "This is the updated content of my post!"
+ *               postImage:
+ *                 type: string
+ *                 format: binary
+ *                 description: Updated image associated with the post (optional)
+ *     responses:
+ *       200:
+ *         description: Post updated successfully
+ *       400:
+ *         description: Bad request (e.g., missing content or invalid file)
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: Post not found
+ */
+
+/**
+ * @swagger
+ * /api/posts/{id}:
  *   delete:
  *     summary: Delete a specific post
  *     tags: [Posts]
@@ -302,6 +345,7 @@ router.route('/:id/like')
   .post(protect, likePost);
 
 router.route('/:id')
+  .put(protect, updatePost)
   .delete(protect, deletePost);
 
 module.exports = router;
