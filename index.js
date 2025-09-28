@@ -72,7 +72,7 @@ const options = {
       },
       servers: [
         {
-          url: 'https://api-server-seven-pi.vercel.app',
+          url: 'https://api-server-two-chi.vercel.app',
           description: 'Production Server (Vercel)',
         },
         {
