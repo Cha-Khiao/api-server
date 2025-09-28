@@ -14,15 +14,21 @@ const createPost = asyncHandler(async (req, res) => {
   };
 
   if (req.file) {
-    newPostData.imageUrl = req.file.path; // URL from Cloudinary
+    newPostData.imageUrl = req.file.path;
   }
 
   if (linkedHairstyle) {
     newPostData.linkedHairstyle = linkedHairstyle;
   }
 
+  // 1. สร้างโพสต์ก่อน
   const post = await Post.create(newPostData);
-  res.status(201).json(post);
+
+  // 2. ✨ ดึงข้อมูลโพสต์ที่เพิ่งสร้างอีกครั้ง พร้อม .populate() ข้อมูล author ✨
+  const createdPost = await Post.findById(post._id).populate('author', 'username profileImageUrl');
+
+  // 3. ส่งโพสต์ที่มีข้อมูล author สมบูรณ์กลับไป
+  res.status(201).json(createdPost);
 });
 
 // @desc    Get user's timeline feed
