@@ -98,7 +98,13 @@ const updateComment = asyncHandler(async (req, res) => {
             throw new Error('User not authorized');
         }
         comment.text = text || comment.text;
-        const updatedComment = await comment.save();
+
+        // 1. บันทึกการเปลี่ยนแปลงก่อน
+        await comment.save();
+
+        // 2. ✨ ดึงข้อมูลคอมเมนต์ที่อัปเดตแล้วอีกครั้ง พร้อม populate ข้อมูล author ✨
+        const updatedComment = await Comment.findById(comment._id).populate('author', 'username profileImageUrl');
+
         res.json(updatedComment);
     } else {
         res.status(404);
