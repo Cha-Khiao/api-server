@@ -18,7 +18,12 @@ const createComment = asyncHandler(async (req, res) => {
     });
 
     const createdComment = await comment.save();
-    res.status(201).json(createdComment);
+
+    // --- ✨ แก้ไขส่วนนี้ ✨ ---
+    // ดึงข้อมูลคอมเมนต์ที่เพิ่งสร้างอีกครั้ง พร้อม .populate() ข้อมูล author
+    const populatedComment = await Comment.findById(createdComment._id).populate('author', 'username profileImageUrl');
+
+    res.status(201).json(populatedComment);
   } else {
     res.status(404);
     throw new Error('Post not found');
