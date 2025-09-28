@@ -12,6 +12,12 @@ const createComment = asyncHandler(async (req, res) => {
   if (post) {
     const comment = new Comment({ text, author: req.user._id, post: postId });
     const createdComment = await comment.save();
+
+    // --- ✨ เพิ่ม Logic อัปเดตจำนวนคอมเมนต์ ✨ ---
+    post.commentCount = (post.commentCount || 0) + 1;
+    await post.save();
+    // ------------------------------------------
+
     const populatedComment = await Comment.findById(createdComment._id).populate('author', 'username profileImageUrl');
     res.status(201).json(populatedComment);
   } else {

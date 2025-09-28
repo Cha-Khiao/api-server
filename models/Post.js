@@ -22,6 +22,7 @@ const postSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
     }],
+    commentCount: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
