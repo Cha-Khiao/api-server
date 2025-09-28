@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router({ mergeParams: true }); 
 const {
-  createComment,
-  getComments,
   replyToComment,
   updateComment,
   deleteComment,
@@ -229,10 +227,11 @@ router.route('/')
   .post(protect, createComment)
   .get(protect, getComments);
 
+// Route สำหรับการตอบกลับคอมเมนต์
 router.route('/:id/reply')
   .post(protect, replyToComment);
 
-// --- ✨ เพิ่ม Route ใหม่สำหรับ แก้ไข/ลบ คอมเมนต์ ✨ ---
+// Route สำหรับการ แก้ไข/ลบ คอมเมนต์
 router.route('/:commentId')
   .put(protect, updateComment)
   .delete(protect, deleteComment);

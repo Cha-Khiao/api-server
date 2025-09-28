@@ -13,9 +13,12 @@ const {
 const { protect } = require('../middleware/authMiddleware.js');
 const upload = require('../middleware/uploadMiddleware.js');
 
-// --- ✨ 2. เชื่อม Comment Routes เข้ามา ✨ ---
-// บอกให้ใช้ commentRouter เมื่อเจอ path ที่ขึ้นต้นด้วย /:postId/comments
-router.use('/:postId/comments', commentRouter);
+// Route สำหรับการจัดการ comment ของโพสต์
+router.route('/:postId/comments')
+  .post(protect, createComment)
+  .get(protect, getComments);
+
+// --- ✨ Swagger Documentation สำหรับ Post และ Comment Route ✨ ---
 
 /**
  * @swagger
