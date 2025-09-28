@@ -52,7 +52,6 @@ const getComments = asyncHandler(async (req, res) => {
   res.json(comments);
 });
 
-// --- ✨ เพิ่มฟังก์ชันใหม่สำหรับ Reply ✨ ---
 // @desc    Reply to a comment
 // @route   POST /api/comments/:id/reply
 const replyToComment = asyncHandler(async (req, res) => {
@@ -65,7 +64,7 @@ const replyToComment = asyncHandler(async (req, res) => {
         const reply = new Comment({
             text,
             author: req.user._id,
-            post: parentComment.post, // ใช้ postId จาก parent
+            post: parentComment.post,
             parentComment: parentCommentId,
         });
 
@@ -75,7 +74,11 @@ const replyToComment = asyncHandler(async (req, res) => {
         parentComment.replies.push(createdReply._id);
         await parentComment.save();
 
-        res.status(201).json(createdReply);
+        // --- ✨ แก้ไขส่วนนี้ ✨ ---
+        // ดึงข้อมูล reply ที่เพิ่งสร้างอีกครั้ง พร้อม populate ข้อมูล author
+        const populatedReply = await Comment.findById(createdReply._id).populate('author', 'username profileImageUrl');
+
+        res.status(201).json(populatedReply);
     } else {
         res.status(404);
         throw new Error('Parent comment not found');
