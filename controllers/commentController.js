@@ -52,7 +52,7 @@ const getComments = asyncHandler(async (req, res) => {
   res.json(comments);
 });
 
-// @desc    Reply to a comment
+/// @desc    Reply to a comment
 // @route   POST /api/comments/:id/reply
 const replyToComment = asyncHandler(async (req, res) => {
     const { text } = req.body;
@@ -70,13 +70,13 @@ const replyToComment = asyncHandler(async (req, res) => {
 
         const createdReply = await reply.save();
 
-        // เพิ่ม ID ของ reply เข้าไปใน parent comment
         parentComment.replies.push(createdReply._id);
         await parentComment.save();
 
         // --- ✨ แก้ไขส่วนนี้ ✨ ---
         // ดึงข้อมูล reply ที่เพิ่งสร้างอีกครั้ง พร้อม populate ข้อมูล author
-        const populatedReply = await Comment.findById(createdReply._id).populate('author', 'username profileImageUrl');
+        const populatedReply = await Comment.findById(createdReply._id)
+            .populate('author', 'username profileImageUrl');
 
         res.status(201).json(populatedReply);
     } else {
