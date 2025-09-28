@@ -12,7 +12,9 @@ const {
   removeFavoriteHairstyle,
   addSavedLook,
   getSavedLooks,
-  deleteSavedLook
+  deleteSavedLook,
+  followUser,
+  unfollowUser,
 } = require('../controllers/userController.js');
 const { protect } = require('../middleware/authMiddleware.js');
 const upload = require('../middleware/uploadMiddleware.js');
@@ -380,5 +382,56 @@ router.route('/saved-looks')
     .get(protect, getSavedLooks)
     .post(protect, upload.single('savedLookImage'), addSavedLook)
     .delete(protect, deleteSavedLook);
+
+/**
+ * @swagger
+ * /api/users/{id}/follow:
+ *   post:
+ *     summary: Follow a user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the user to follow
+ *         example: 60d2b3f04f1a2d001fbc2e7d
+ *     responses:
+ *       200:
+ *         description: Successfully followed the user
+ *       400:
+ *         description: Bad request (e.g., already following the user)
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ * 
+ *   delete:
+ *     summary: Unfollow a user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the user to unfollow
+ *         example: 60d2b3f04f1a2d001fbc2e7d
+ *     responses:
+ *       200:
+ *         description: Successfully unfollowed the user
+ *       401:
+ *         description: Unauthorized
+ *       404:
+ *         description: User not found
+ */
+router.route('/:id/follow')
+  .post(protect, followUser)
+  .delete(protect, unfollowUser);
 
 module.exports = router;

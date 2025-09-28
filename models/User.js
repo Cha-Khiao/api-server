@@ -19,8 +19,15 @@ const userSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Hairstyle'
   }], // <-- ✨ เพิ่ม comma ที่นี่
-
-  savedLooks: [{ type: String }] // <-- ✨ เพิ่ม comma ที่นี่ (ถ้ามี field ต่อไป)
+  savedLooks: [{ 
+    type: String 
+  }], // <-- ✨ เพิ่ม comma ที่นี่ (ถ้ามี field ต่อไป)
+  followers: [{ 
+    type: mongoose.Schema.Types.ObjectId, ref: 'User' 
+  }],
+  following: [{ 
+    type: mongoose.Schema.Types.ObjectId, ref: 'User' 
+  }],
   
 }, { timestamps: true });
 

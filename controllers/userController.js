@@ -209,6 +209,59 @@ const deleteSavedLook = asyncHandler(async (req, res) => {
     }
 });
 
+// @desc    Follow a user
+// @route   POST /api/users/:id/follow
+const followUser = asyncHandler(async (req, res) => {
+  const userToFollow = await User.findById(req.params.id);
+  const currentUser = await User.findById(req.user._id);
+
+  if (userToFollow && currentUser) {
+    if (req.user._id.equals(userToFollow._id)) {
+      res.status(400);
+      throw new Error("You can't follow yourself");
+    }
+
+    // เพิ่มผู้ใช้ที่เราจะตามเข้าลิสต์ 'following' ของเรา
+    if (!currentUser.following.includes(userToFollow._id)) {
+      currentUser.following.push(userToFollow._id);
+    }
+    // เพิ่มเราเข้าลิสต์ 'followers' ของเขา
+    if (!userToFollow.followers.includes(currentUser._id)) {
+      userToFollow.followers.push(currentUser._id);
+    }
+
+    await currentUser.save();
+    await userToFollow.save();
+
+    res.json({ message: `Successfully followed ${userToFollow.username}` });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
+// @desc    Unfollow a user
+// @route   DELETE /api/users/:id/follow
+const unfollowUser = asyncHandler(async (req, res) => {
+  const userToUnfollow = await User.findById(req.params.id);
+  const currentUser = await User.findById(req.user._id);
+
+  if (userToUnfollow && currentUser) {
+    // ลบผู้ใช้ที่เราจะเลิกตามออกจากลิสต์ 'following' ของเรา
+    currentUser.following.pull(userToUnfollow._id);
+    // ลบเราออกจากลิสต์ 'followers' ของเขา
+    userToUnfollow.followers.pull(currentUser._id);
+
+    await currentUser.save();
+    await userToUnfollow.save();
+
+    res.json({ message: `Successfully unfollowed ${userToUnfollow.username}` });
+  } else {
+    res.status(404);
+    throw new Error('User not found');
+  }
+});
+
 module.exports = {
   registerUser,
   loginUser,
@@ -220,5 +273,7 @@ module.exports = {
   removeFavoriteHairstyle,
   addSavedLook,
   getSavedLooks,
-  deleteSavedLook
+  deleteSavedLook,
+  followUser,
+  unfollowUser,
 };
