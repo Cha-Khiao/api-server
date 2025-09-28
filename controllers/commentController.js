@@ -72,8 +72,16 @@ const updateComment = asyncHandler(async (req, res) => {
         comment.text = text || comment.text;
         await comment.save();
 
-        // --- ✨ บรรทัดสำคัญอยู่ตรงนี้ ✨ ---
-        const updatedComment = await Comment.findById(comment._id).populate('author', 'username profileImageUrl');
+        // --- ✨ แก้ไขส่วนนี้ให้มีการ Populate ซ้อนกัน ✨ ---
+        const updatedComment = await Comment.findById(comment._id)
+            .populate('author', 'username profileImageUrl')
+            .populate({
+                path: 'replies',
+                populate: {
+                    path: 'author',
+                    select: 'username profileImageUrl'
+                }
+            });
 
         res.json(updatedComment);
     } else {
