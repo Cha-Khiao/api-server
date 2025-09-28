@@ -8,7 +8,6 @@ const rateLimit = require('express-rate-limit');
 // Import Routes
 const userRoutes = require('./routes/userRoutes.js');
 const hairstyleRoutes = require('./routes/hairstyleRoutes.js');
-const postRoutes = require('./routes/postRoutes.js');
 
 // Import Middleware
 const { errorHandler } = require('./middleware/errorMiddleware.js');
@@ -106,7 +105,6 @@ app.get('/', (req, res) => {
 
 app.use('/api/users', userRoutes);
 app.use('/api/hairstyles', hairstyleRoutes);
-app.use('/api/posts', postRoutes);
 
 // --- Centralized Error Handler ---
 app.use(errorHandler);
