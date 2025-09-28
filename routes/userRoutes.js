@@ -13,6 +13,7 @@ const {
   addSavedLook,
   getSavedLooks,
   deleteSavedLook,
+  getUserPublicProfile,
   followUser,
   unfollowUser,
 } = require('../controllers/userController.js');
@@ -382,6 +383,30 @@ router.route('/saved-looks')
     .get(protect, getSavedLooks)
     .post(protect, upload.single('savedLookImage'), addSavedLook)
     .delete(protect, deleteSavedLook);
+
+/**
+ * @swagger
+ * /api/users/public/{id}:
+ *   get:
+ *     summary: Get a public profile of a user
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The ID of the user whose public profile is to be fetched
+ *         example: 60d2b3f04f1a2d001fbc2e7d
+ *     responses:
+ *       200:
+ *         description: Successfully fetched the public profile of the user
+ *       404:
+ *         description: User not found
+ *       401:
+ *         description: Unauthorized
+ */
+router.get('/public/:id', getUserPublicProfile);
 
 /**
  * @swagger

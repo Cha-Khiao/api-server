@@ -1,6 +1,7 @@
 const User = require('../models/User.js');
 const jwt = require('jsonwebtoken');
 const asyncHandler = require('express-async-handler');
+const Post = require('../models/Post.js');
 
 // ฟังก์ชันสร้าง Token
 const generateToken = (id) => {
@@ -262,6 +263,32 @@ const unfollowUser = asyncHandler(async (req, res) => {
   }
 });
 
+// --- ✨ เพิ่มฟังก์ชันนี้เข้ามา ✨ ---
+// @desc    Get a user's public profile
+// @route   GET /api/users/public/:id
+const getUserPublicProfile = asyncHandler(async (req, res) => {
+    const user = await User.findById(req.params.id);
+
+    if (user) {
+        // นับจำนวนโพสต์ของผู้ใช้คนนี้
+        const postCount = await Post.countDocuments({ author: user._id });
+
+        res.json({
+            _id: user._id,
+            username: user.username,
+            profileImageUrl: user.profileImageUrl,
+            followers: user.followers, // ส่ง ID ของผู้ติดตามไปด้วย
+            followingCount: user.following.length,
+            followerCount: user.followers.length,
+            postCount: postCount,
+        });
+    } else {
+        res.status(404);
+        throw new Error('User not found');
+    }
+});
+
+
 module.exports = {
   registerUser,
   loginUser,
@@ -274,6 +301,7 @@ module.exports = {
   addSavedLook,
   getSavedLooks,
   deleteSavedLook,
+  getUserPublicProfile,
   followUser,
   unfollowUser,
 };
