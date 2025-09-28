@@ -1,7 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
-const path = require('path');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 
@@ -9,6 +8,8 @@ const rateLimit = require('express-rate-limit');
 const userRoutes = require('./routes/userRoutes.js');
 const hairstyleRoutes = require('./routes/hairstyleRoutes.js');
 const postRoutes = require('./routes/postRoutes.js');
+const commentRoutes = require('./routes/commentRoutes.js');
+const reviewRoutes = require('./routes/reviewRoutes.js');
 
 // Import Middleware
 const { errorHandler } = require('./middleware/errorMiddleware.js');
@@ -20,74 +21,80 @@ const swaggerUi = require('swagger-ui-express');
 dotenv.config();
 
 const app = express();
-
-// --- 🚀 เพิ่มบรรทัดนี้เข้ามาครับ! ---
-// บอกให้ Express เชื่อถือ Proxy Header จาก Vercel
 app.set('trust proxy', 1);
-// ------------------------------------
 
 // --- Security Middlewares ---
-app.use(helmet()); 
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+        "script-src": ["'self'", "https://cdnjs.cloudflare.com"],
+        "style-src": ["'self'", "https://cdnjs.cloudflare.com", "'unsafe-inline'"],
+        "img-src": ["'self'", "data:", "https://validator.swagger.io"],
+      },
+    },
+  })
+);
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, 
-  max: 100, 
+  windowMs: 15 * 60 * 1000,
+  max: 200, 
   standardHeaders: true,
   legacyHeaders: false,
-  message: 'Too many requests from this IP, please try again after 15 minutes'
 });
-app.use('/api', limiter); 
+app.use('/api', limiter);
 
 app.use(express.json());
 
-const PORT = process.env.PORT || 5000;
-
+// --- Database Connection ---
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log('✅ MongoDB Connected! ฐานข้อมูลเชื่อมต่อสำเร็จแล้ว');
+    console.log('✅ MongoDB Connected!');
   } catch (error) {
     console.error('❌ MongoDB Connection Failed:', error.message);
     process.exit(1);
   }
 };
-
 connectDB();
+
+const PORT = process.env.PORT || 5000;
 
 // --- Swagger/OpenAPI Setup ---
 const options = {
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Cut Match API',
-      version: '1.0.0',
-      description: 'API Documentation for Cut Match - Hairstyle Recommendation App',
-    },
-    servers: [
-      {
-        url: 'https://api-server-seven-pi.vercel.app',
-        description: 'Production Server (Vercel)',
+    definition: {
+      openapi: '3.0.0',
+      info: {
+        title: 'Cut Match API',
+        version: '1.0.0',
+        description: 'API Documentation for Cut Match - Hairstyle Recommendation App',
       },
-      {
-        url: `http://localhost:${PORT}`,
-        description: 'Development Server',
-      }
-    ],
-    components: {
-      securitySchemes: {
-        bearerAuth: {
-          type: 'http',
-          scheme: 'bearer',
-          bearerFormat: 'JWT',
+      servers: [
+        {
+          url: 'https://api-server-seven-pi.vercel.app',
+          description: 'Production Server (Vercel)',
+        },
+        {
+          url: `http://localhost:${PORT}`,
+          description: 'Development Server',
         }
-      }
+      ],
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+          }
+        }
+      },
+      security: [{
+        bearerAuth: []
+      }]
     },
-    security: [{
-      bearerAuth: []
-    }]
-  },
-  apis: ['./routes/*.js'],
-};
+    apis: ['./routes/*.js'],
+  };
 
 const specs = swaggerJsdoc(options);
 
@@ -99,7 +106,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
   ],
 }));
 
-// API Routes
+// --- API Routes ---
 app.get('/', (req, res) => {
   res.redirect('/api-docs');
 });
@@ -107,6 +114,8 @@ app.get('/', (req, res) => {
 app.use('/api/users', userRoutes);
 app.use('/api/hairstyles', hairstyleRoutes);
 app.use('/api/posts', postRoutes);
+app.use('/api/comments', commentRoutes);
+// reviewRoutes ถูกเรียกใช้ข้างใน hairstyleRoutes แล้ว
 
 // --- Centralized Error Handler ---
 app.use(errorHandler);
