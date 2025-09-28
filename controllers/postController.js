@@ -9,7 +9,7 @@ const createPost = asyncHandler(async (req, res) => {
   const newPostData = { author: req.user._id, text: text };
   if (req.file) newPostData.imageUrl = req.file.path;
   if (linkedHairstyle) newPostData.linkedHairstyle = linkedHairstyle;
-
+  
   const post = await Post.create(newPostData);
   const createdPost = await Post.findById(post._id).populate('author', 'username profileImageUrl');
   res.status(201).json(createdPost);
@@ -39,14 +39,21 @@ const getUserPosts = asyncHandler(async (req, res) => {
 const updatePost = asyncHandler(async (req, res) => {
   const { text, linkedHairstyle } = req.body;
   const post = await Post.findById(req.params.id);
+
   if (post) {
     if (!post.author.equals(req.user._id)) {
       res.status(401);
-      throw new Error('User not authorized');
+      throw new Error('User not authorized to update this post');
     }
-    post.text = text || post.text;
-    post.linkedHairstyle = linkedHairstyle || post.linkedHairstyle;
-    const updatedPost = await post.save();
+    post.text = text !== undefined ? text : post.text;
+    post.linkedHairstyle = linkedHairstyle !== undefined ? linkedHairstyle : post.linkedHairstyle;
+    await post.save();
+
+    // --- ✨ แก้ไขส่วนนี้ ✨ ---
+    const updatedPost = await Post.findById(post._id)
+        .populate('author', 'username profileImageUrl')
+        .populate('linkedHairstyle', 'name imageUrls');
+    
     res.json(updatedPost);
   } else {
     res.status(404);
@@ -54,12 +61,9 @@ const updatePost = asyncHandler(async (req, res) => {
   }
 });
 
-// --- ✨ แก้ไขฟังก์ชันนี้ให้สมบูรณ์ ✨ ---
 // @desc    Like or unlike a post
-// @route   POST /api/posts/:id/like
 const likePost = asyncHandler(async (req, res) => {
   const post = await Post.findById(req.params.id);
-
   if (post) {
     if (post.likes.includes(req.user._id)) {
       post.likes.pull(req.user._id);
@@ -68,10 +72,10 @@ const likePost = asyncHandler(async (req, res) => {
     }
     await post.save();
 
-    // Populate ข้อมูลที่จำเป็นทั้งหมดก่อนส่งกลับ
+    // --- ✨ แก้ไขส่วนนี้ ✨ ---
     const updatedPost = await Post.findById(post._id)
-        .populate('author', 'username profileImageUrl')
-        .populate('linkedHairstyle', 'name imageUrls');
+      .populate('author', 'username profileImageUrl')
+      .populate('linkedHairstyle', 'name imageUrls');
 
     res.json(updatedPost);
   } else {
