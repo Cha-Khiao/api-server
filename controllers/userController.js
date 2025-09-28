@@ -23,6 +23,7 @@ const registerUser = asyncHandler(async (req, res) => {
       username: user.username,
       email: user.email,
       role: user.role,
+      profileImageUrl: user.profileImageUrl,
       token: generateToken(user._id),
     });
   } else {
@@ -42,6 +43,7 @@ const loginUser = asyncHandler(async (req, res) => {
       username: user.username,
       email: user.email,
       role: user.role,
+      profileImageUrl: user.profileImageUrl,
       token: generateToken(user._id),
     });
   } else {
@@ -60,6 +62,7 @@ const getUserProfile = asyncHandler(async (req, res) => {
             username: user.username,
             email: user.email,
             role: user.role,
+            profileImageUrl: user.profileImageUrl
         });
     } else {
         res.status(404);
