@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 
 // Import Routes
 const userRoutes = require('./routes/userRoutes.js');
@@ -22,6 +23,8 @@ dotenv.config();
 
 const app = express();
 app.set('trust proxy', 1);
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 // --- Security Middlewares ---
 app.use(
@@ -104,6 +107,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
     "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-bundle.js",
     "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.11.0/swagger-ui-standalone-preset.js"
   ],
+  customfavIcon: "/images/Node.png"
 }));
 
 // --- API Routes ---
