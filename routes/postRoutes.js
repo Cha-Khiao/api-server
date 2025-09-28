@@ -36,10 +36,12 @@ router.use('/:postId/comments', commentRouter);
  *         content:
  *           type: string
  *           description: The content of the post
- *         postImage:
- *           type: string
- *           format: binary
- *           description: The image associated with the post (optional)
+ *         postImages:
+ *           type: array
+ *           items:
+ *             type: string
+ *             format: binary
+ *           description: Array of images associated with the post (optional)
  *         createdAt:
  *           type: string
  *           format: date-time
@@ -104,10 +106,13 @@ router.use('/:postId/comments', commentRouter);
  *                 type: string
  *                 description: The content of the post
  *                 example: "This is my first post!"
- *               postImage:
- *                 type: string
- *                 format: binary
- *                 description: Image associated with the post (optional)
+ *               postImages:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: Images associated with the post (optional)
+ *                 maxItems: 10  # You can adjust the maximum number of files allowed
  *     responses:
  *       201:
  *         description: Post created successfully
@@ -209,10 +214,13 @@ router.use('/:postId/comments', commentRouter);
  *                 type: string
  *                 description: The updated content of the post
  *                 example: "This is the updated content of my post!"
- *               postImage:
- *                 type: string
- *                 format: binary
- *                 description: Updated image associated with the post (optional)
+ *               postImages:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                   format: binary
+ *                 description: Updated images associated with the post (optional)
+ *                 maxItems: 10  # You can adjust the maximum number of files allowed
  *     responses:
  *       200:
  *         description: Post updated successfully
@@ -296,7 +304,7 @@ router.use('/:postId/comments', commentRouter);
  *         description: Comment added successfully
  *       400:
  *         description: Bad request (e.g., missing content)
- *       401:
+ *        401:
  *         description: Unauthorized
  *       404:
  *         description: Post not found
@@ -333,7 +341,7 @@ router.use('/:postId/comments', commentRouter);
  */
 
 router.route('/')
-  .post(protect, upload.single('postImage'), createPost);
+  .post(protect, upload.array('postImages', 10), createPost);
 
 router.route('/feed')
   .get(protect, getFeed);

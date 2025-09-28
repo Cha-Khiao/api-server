@@ -4,14 +4,30 @@ const User = require('../models/User.js');
 const Comment = require('../models/Comment.js');
 
 // @desc    Create a new post
+// @route   POST /api/posts
 const createPost = asyncHandler(async (req, res) => {
   const { text, linkedHairstyle } = req.body;
-  const newPostData = { author: req.user._id, text: text };
-  if (req.file) newPostData.imageUrl = req.file.path;
-  if (linkedHairstyle) newPostData.linkedHairstyle = linkedHairstyle;
-  
+
+  const newPostData = {
+    author: req.user._id,
+    text: text,
+    imageUrls: [], // เริ่มต้นด้วย Array ว่าง
+  };
+
+  // --- ✨ แก้ไข Logic การรับรูปภาพ ✨ ---
+  // multer.array จะส่ง req.files มาเป็น Array
+  if (req.files && req.files.length > 0) {
+    // วนลูปเพื่อดึง URL ของทุกไฟล์ที่อัปโหลด
+    newPostData.imageUrls = req.files.map(file => file.path);
+  }
+
+  if (linkedHairstyle) {
+    newPostData.linkedHairstyle = linkedHairstyle;
+  }
+
   const post = await Post.create(newPostData);
   const createdPost = await Post.findById(post._id).populate('author', 'username profileImageUrl');
+
   res.status(201).json(createdPost);
 });
 
